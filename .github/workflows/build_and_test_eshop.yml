@@ -1,4 +1,4 @@
-name: Build and tests eshop WF
+name: Build and tests eshop
 
 on:
   workflow_dispatch:
