@@ -94,7 +94,7 @@ jobs:
   Deploy:
     needs: [Build, Test]
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
       - name: Git Checkout
