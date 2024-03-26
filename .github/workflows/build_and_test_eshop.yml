@@ -56,7 +56,7 @@ jobs:
           npm rebuild node-sass --force
           npm run build -- --colors
       - name: Cache node modules and build folder
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/cache@v3.3.2
         with:
           path: |
