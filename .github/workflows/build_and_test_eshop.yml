@@ -20,7 +20,7 @@ jobs:
           node-version: 14
 
       - name: Cache node modules
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v4.0.2
         with:
           path: node_modules
           key: node_modules-${{ hashFiles('**/package-lock.json') }}
@@ -46,7 +46,7 @@ jobs:
           node-version: 14
 
       - name: Cache node modules
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v4.0.2
         with:
           path: node_modules
           key: node_modules-${{ hashFiles('**/package-lock.json') }}
@@ -56,6 +56,16 @@ jobs:
           npm rebuild node-sass --force
           npm run build -- --colors
 
+      - name: Cache node modules and build folder
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: actions/cache@v4.0.2
+        with:
+          path: |
+            ~/.npm
+            ./node_modules
+            ./build
+          key: ${{ runner.os }}-build-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-build-${{ github.run_id }}
 
   Test:
     needs: Install
@@ -73,7 +83,7 @@ jobs:
           node-version: 14
 
       - name: Cache node modules
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v4.0.2
         with:
           path: node_modules
           key: node_modules-${{ hashFiles('**/package-lock.json') }}
@@ -81,3 +91,33 @@ jobs:
       - name: Run tests
         run: |
           npm run test -- --colors
+
+  Deploy:
+    needs: [Build, Test]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Load node modules and build folder
+        uses: actions/cache@v4.0.2
+        with:
+          path: |
+            ~/.npm
+            ./node_modules
+            ./build
+          key: ${{ runner.os }}-build-${{ github.run_id }}
+
+      - name: Deploy to Firebase
+        uses: lowply/deploy-firebase@v0.0.5
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOCKEN }}
+          FIREBASE_PROJECT: shtol-devops
+      
+
+
+
